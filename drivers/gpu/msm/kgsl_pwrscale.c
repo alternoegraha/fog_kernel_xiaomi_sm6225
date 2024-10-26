@@ -973,10 +973,6 @@ int kgsl_pwrscale_init(struct device *dev, const char *governor)
 	/* link storage array to the devfreq profile pointer */
 	profile->freq_table = pwrscale->freq_table;
 
-	/* if there is only 1 freq, no point in running a governor */
-	if (profile->max_state == 1)
-		governor = "performance";
-
 	/* initialize msm-adreno-tz governor specific data here */
 	data = gpu_profile->private_data;
 
@@ -1074,7 +1070,9 @@ int kgsl_pwrscale_init(struct device *dev, const char *governor)
 	ret = sysfs_create_link(&device->dev->kobj,
 			&devfreq->dev.kobj, "devfreq");
 
-	pwrscale->devfreq_wq = create_freezable_workqueue("kgsl_devfreq_wq");
+	pwrscale->devfreq_wq = alloc_workqueue("kgsl_devfreq_wq", WQ_HIGHPRI |
+					       WQ_UNBOUND | WQ_FREEZABLE |
+					       WQ_MEM_RECLAIM, 0);
 	INIT_WORK(&pwrscale->devfreq_suspend_ws, do_devfreq_suspend);
 	INIT_WORK(&pwrscale->devfreq_resume_ws, do_devfreq_resume);
 	INIT_WORK(&pwrscale->devfreq_notify_ws, do_devfreq_notify);
