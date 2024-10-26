@@ -61,7 +61,7 @@ enum zram_pageflags {
 struct zram_entry {
 	struct rb_node rb_node;
 	u32 len;
-	u32 checksum;
+	u64 checksum;
 	unsigned long refcount;
 	unsigned long handle;
 };
@@ -73,9 +73,7 @@ struct zram_table_entry {
 		unsigned long element;
 	};
 	unsigned long flags;
-#ifdef CONFIG_ZRAM_MEMORY_TRACKING
 	ktime_t ac_time;
-#endif
 };
 
 struct zram_stats {
@@ -135,8 +133,8 @@ struct zram {
 	 */
 	bool claim; /* Protected by bdev->bd_mutex */
 	bool use_dedup;
-	struct file *backing_dev;
 #ifdef CONFIG_ZRAM_WRITEBACK
+	struct file *backing_dev;
 	spinlock_t wb_limit_lock;
 	bool wb_limit_enable;
 	u64 bd_wb_limit;

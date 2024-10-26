@@ -83,8 +83,6 @@ static u32 __accumulate_pelt_segments(u64 periods, u32 d1, u32 d3)
 	return c1 + c2 + c3;
 }
 
-#define cap_scale(v, s) ((v)*(s) >> SCHED_CAPACITY_SHIFT)
-
 /*
  * Accumulate the three separate parts of the sum; d1 the remainder
  * of the last (incomplete) period, d2 the span of full periods and d3
@@ -129,8 +127,20 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
 		 * Step 2
 		 */
 		delta %= 1024;
-		contrib = __accumulate_pelt_segments(periods,
-				1024 - sa->period_contrib, delta);
+		if (load) {
+			/*
+			 * This relies on the:
+			 *
+			 * if (!load)
+			 *	runnable = running = 0;
+			 *
+			 * clause from ___update_load_sum(); this results in
+			 * the below usage of @contrib to dissapear entirely,
+			 * so no point in calculating it.
+			 */
+			contrib = __accumulate_pelt_segments(periods,
+					1024 - sa->period_contrib, delta);
+		}
 	}
 	sa->period_contrib = delta;
 
@@ -205,7 +215,9 @@ ___update_load_sum(u64 now, struct sched_avg *sa,
 	 * This means that weight will be 0 but not running for a sched_entity
 	 * but also for a cfs_rq if the latter becomes idle. As an example,
 	 * this happens during idle_balance() which calls
-	 * update_blocked_averages()
+	 * update_blocked_averages().
+	 *
+	 * Also see the comment in accumulate_sum().
 	 */
 	if (!load)
 		runnable = running = 0;
