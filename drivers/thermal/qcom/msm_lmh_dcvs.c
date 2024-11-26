@@ -704,7 +704,7 @@ static int limits_dcvs_probe(struct platform_device *pdev)
 
 	mutex_init(&hw->access_lock);
 	INIT_WORK(&hw->cdev_register_work, register_cooling_device);
-	INIT_DEFERRABLE_WORK(&hw->freq_poll_work, limits_dcvs_poll);
+	INIT_DELAYED_WORK(&hw->freq_poll_work, limits_dcvs_poll);
 	hw->osm_hw_reg = devm_ioremap(&pdev->dev, request_reg, 0x4);
 	if (!hw->osm_hw_reg) {
 		pr_err("register remap failed\n");
@@ -731,6 +731,7 @@ static int limits_dcvs_probe(struct platform_device *pdev)
 		goto probe_exit;
 	}
 	limits_isens_vref_ldo_init(pdev, hw);
+	sysfs_attr_init(&hw->lmh_freq_attr.attr);
 	hw->lmh_freq_attr.attr.name = "lmh_freq_limit";
 	hw->lmh_freq_attr.show = lmh_freq_limit_show;
 	hw->lmh_freq_attr.attr.mode = 0444;
