@@ -426,7 +426,7 @@
 			alloc-ranges = <0x0 0x00000000 0x0 0xffffffff>;
 			reusable;
 			alignment = <0x0 0x400000>;
-			size = <0x0 0x2000000>;
+			size = <0x0 0x8000000>;
 			linux,cma-default;
 		};
 
@@ -441,7 +441,7 @@
 	};
 
 	chosen {
-		bootargs = "rcupdate.rcu_expedited=1 rcu_nocbs=0-7 kpti=off";
+		bootargs = "quiet rcupdate.rcu_expedited=1 mce=ignore_ce noirqdebug rcu_nocbs=0-7 kpti=off";
 	};
 
 	soc: soc { };
@@ -3200,6 +3200,7 @@
 		qcom,iommu-dma = "fastmap";
 		qcom,iommu-faults = "stall-disable", "HUPCF";
 		qcom,iommu-geometry = <0xa0000000 0x10010000>;
+		qcom,ignore-ssr-failure;
 		vdd-cx-mx-supply = <&L8A>;
 		vdd-1.8-xo-supply = <&L16A>;
 		vdd-1.3-rfa-supply = <&L17A>;

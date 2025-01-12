@@ -293,7 +293,7 @@ static FORCE_INLINE int LZ4HC_encodeSequence(
 		*token = (BYTE)(length<<ML_BITS);
 
 	/* Copy Literals */
-	LZ4_wildCopy8(*op, *anchor, (*op) + length);
+	LZ4_wildCopy(*op, *anchor, (*op) + length);
 	*op += length;
 
 	/* Encode Offset */
@@ -621,6 +621,7 @@ void LZ4_resetStreamHC(LZ4_streamHC_t *LZ4_streamHCPtr, int compressionLevel)
 	LZ4_streamHCPtr->internal_donotuse.base = NULL;
 	LZ4_streamHCPtr->internal_donotuse.compressionLevel = (unsigned int)compressionLevel;
 }
+EXPORT_SYMBOL(LZ4_resetStreamHC);
 
 int LZ4_loadDictHC(LZ4_streamHC_t *LZ4_streamHCPtr,
 	const char *dictionary,
